@@ -79,6 +79,7 @@ void IRAM_ATTR ISR_sensorCapacitivo(void);
 //===============================================================
 
 void IRAM_ATTR Timer0_ISR(void) {
+  // sucede cada 250 ms
   contadorBinarioTimer++;
   if (contadorBinarioTimer > 15) {
     contadorBinarioTimer = 0;
@@ -112,7 +113,6 @@ void IRAM_ATTR ISR_sensorCapacitivo(void) {
 //===============================================================
 void setup() {
   Serial.begin(115200);
-  delay(1000);
 
   pinMode(ledContador1, OUTPUT);
   pinMode(ledContador2, OUTPUT);
@@ -137,6 +137,8 @@ void setup() {
   touchAttachInterrupt(sensorCapacitivo, ISR_sensorCapacitivo, umbralSensor);
 
   ultimoTiempoBoton = millis();
+  ultimoTiempoMas = millis();
+  ultimoTiempoMenos = millis();
 }
 
 //===============================================================
@@ -146,6 +148,11 @@ void loop() {
   botonesPresionados();
   mostrarContadores();
   verificarAlarma();
+
+  // Para determinar umbral sensor capacitivo
+  /*int32_t lecturaSensor = touchRead(sensorCapacitivo);
+  Serial.print(lecturaSensor);
+  delay(1000);*/
 }
 
 //===============================================================
@@ -197,18 +204,19 @@ void verificarAlarma(void) {
 
 void botonesPresionados(void) {
   if (botonAumentoPresionado) {
-    botonAumentoPresionado = false;
     contadorBinarioBoton++;
     if (contadorBinarioBoton > 15) {
       contadorBinarioBoton = 0;
     }
+    botonAumentoPresionado = false;
   }
   
   if (botonMenosPresionado) {
-    botonMenosPresionado = false;
     if (contadorBinarioBoton == 0) {
+
     contadorBinarioBoton = 15;
     } else
     contadorBinarioBoton--;
+    botonMenosPresionado = false;
   }
 }
